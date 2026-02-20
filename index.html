@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modüler Tabulator Tablo Sistemi</title>
+    <!-- Tabulator CSS -->
+    <link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator.min.css" rel="stylesheet">
+    <!-- Bootstrap ikonları -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Luxon (tarih işlemleri) -->
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.3.0/build/global/luxon.min.js"></script>
+    <!-- Ana stil -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+
+    <header>
+    <div class="modules-container">
+        <button class="module-btn faturalar-btn" data-module="faturalar"><i class="bi bi-receipt"></i><span>Fatura</span></button>
+        <button class="module-btn stok-btn" data-module="stok"><i class="bi bi-box-seam"></i><span>Stok</span></button>
+        <button class="module-btn cari-btn" data-module="cari"><i class="bi bi-people"></i><span>Cari</span></button>
+        <button class="module-btn hesapplani-btn" data-module="hesapPlani"><i class="bi bi-journal-bookmark-fill"></i><span>Hesap</span></button>
+    </div>
+    <h1>Modüler Tablo Sistemi</h1>
+    <div id="connectionStatus" class="connection-status disconnected">Supabase: Bağlanılıyor...</div>
+</header>
+
+
+
+        <!-- TABLO BAŞLIĞI VE AKSİYON BUTONLARI (ARTIK DIŞARIDA) -->
+<div class="table-header">
+    <h2 id="tableTitle" class="table-title"><i class="bi bi-table"></i><span>Modül Verileri</span></h2>
+    <div class="table-actions">
+        <button id="addNew"       class="action-btn" title="Yeni Kayıt Ekle"><i class="bi bi-plus-circle"></i></button>
+        <button id="exportExcel"  class="action-btn" title="Excel Olarak İndir"><i class="bi bi-download"></i></button>
+        <button id="printTable"   class="action-btn" title="Yazdır"><i class="bi bi-printer"></i></button>
+        <button id="columnToggle" class="action-btn" title="Sütunları Göster/Gizle"><i class="bi bi-columns-gap"></i></button>
+        <button id="clearFilters" class="action-btn" title="Filtreleri Temizle"><i class="bi bi-funnel"></i></button>
+        <button id="deleteSelected" class="action-btn" title="Seçili Kayıtları Sil"><i class="bi bi-trash3"></i></button>
+        <button id="refreshTable" class="action-btn" title="Tabloyu Yenile"><i class="bi bi-arrow-clockwise"></i></button>
+        <button id="importExcel"  class="action-btn" title="Excel'den Veri Yükle"><i class="bi bi-upload"></i></button>
+        <button id="closeTable"   class="action-btn" title="Tabloyu Kapat"><i class="bi bi-x-circle"></i></button>
+    </div>
+</div>
+
+<!-- TABLO KONTEYNERI (SADECE YÜKLEME GÖSTERGESİ VE TABLO) -->
+<div id="tableContainer" class="table-container">
+    <div id="loadingIndicator" class="loading"><i class="bi bi-arrow-repeat"></i><p>Veriler yükleniyor...</p></div>
+    <div id="tabulator-table"></div>
+</div>
+        <!-- Bağlam Menüsü -->
+<div id="contextMenu" class="context-menu">
+<ul>
+    <li id="editItem" data-action="edit">
+        <i class="bi bi-pencil"></i> Düzenle
+    </li>
+    <li id="copyItem" data-action="copy">      <!-- YENİ -->
+        <i class="bi bi-files"></i> Kopyala
+    </li>
+    <li id="deleteItem" data-action="delete">
+        <i class="bi bi-trash"></i> Sil
+    </li>
+</ul>
+</div>
+
+        <!-- CRUD Modalı -->
+        <div id="crudModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modalTitle">Yeni Kayıt</h3>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="crudForm"></form>
+                </div>
+                <div class="modal-footer">
+                    <button id="saveButton" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Kaydet
+                    </button>
+                    <button id="cancelButton" class="btn btn-secondary">
+                        <i class="bi bi-x-lg"></i> İptal
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        
+    </div>
+
+    <!-- Tabulator JS -->
+    <script src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
+    <!-- Supabase JS -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- SheetJS (Excel dışa aktarma için) -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <!-- Modül tanımları (sütunlar) -->
+    <script src="faturalar.js"></script>
+    <script src="stok.js"></script>
+    <script src="cari.js"></script>
+    <script src="hesapPlani.js"></script>
+
+    <!-- Proje dosyaları (sıralama önemli!) -->
+    <script src="supabaseClient.js"></script>
+    <script src="app.js"></script>
+    <script src="crud.js"></script>
+    <script src="excelImport.js"></script>
+    <script src="excelExport.js"></script>
+</body>
+</html>
