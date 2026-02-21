@@ -177,11 +177,20 @@
                 }
             }
         }
-        // Sayısal alanları parse et
-        if (formData.tutar) formData.tutar = parseFloat(formData.tutar);
-        if (formData.bakiye) formData.bakiye = parseFloat(formData.bakiye);
-        if (formData.birim_fiyat) formData.birim_fiyat = parseFloat(formData.birim_fiyat);
-        if (formData.stok_miktari) formData.stok_miktari = parseInt(formData.stok_miktari, 10);
+        
+        // Sayısal alanları parse et - BOŞ DEĞERLERİ NULL YAP
+        const numericFields = ['Borç', 'Alacak', 'Borç Bakiye', 'Alacak Bakiye', 
+                              'Döviz Borç', 'Döviz Alacak', 'Döviz Borç Bakiye', 'Döviz Alacak Bakiye'];
+        
+        numericFields.forEach(field => {
+            if (formData[field] === undefined || formData[field] === null || formData[field] === '') {
+                formData[field] = null;  // Boş değerleri null yap
+            } else {
+                const parsed = parseFloat(formData[field].toString().replace(',', '.'));
+                formData[field] = isNaN(parsed) ? null : parsed;
+            }
+        });
+        
         return formData;
     }
 
