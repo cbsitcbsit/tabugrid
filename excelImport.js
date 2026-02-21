@@ -100,18 +100,40 @@ function transformRows(rows, fieldMap, moduleName) {
         let hasData = false;
 
         Object.entries(fieldMap).forEach(([indexStr, field]) => {
-            if (!field) return; // güvenlik
+            if (!field) return;
             const index = parseInt(indexStr);
             let value = row[index];
 
-            // Boş değerleri atla
             if (value === undefined || value === null || value === '') {
                 return;
             }
 
-            hasData = true; // en az bir dolu alan var
+            hasData = true;
 
-            // Tarih dönüşümü
+            // DÖVİZ CİNSİ DÖNÜŞÜMÜ (SADECE hesap_plani modülü için)
+            if (moduleName === 'hesap_plani' && 
+                (field === 'dvz_cinsi' || field === 'Dvz.Cinsi' || field === 'Dvz. Cinsi')) {
+                
+                let strValue = String(value).trim();
+                const upperValue = strValue.toUpperCase();
+                
+                const currencyMap = {
+                    'TL': 'TL', 'TRY': 'TL',
+                    'USD': 'Usd', 'USd': 'Usd',
+                    'EUR': 'Eur', 'EURO': 'Eur',
+                    'RBL': 'Rbl', 'RUBLE': 'Rbl',
+                    'THB': 'Thb', 'BAHT': 'Thb'
+                };
+                
+                value = currencyMap[upperValue] || strValue;
+                
+                if (!['TL', 'Usd', 'Eur', 'Rbl', 'Thb'].includes(value)) {
+                    console.warn(`Satır ${rowIndex+2}, Geçersiz döviz cinsi: "${strValue}" -> null yapıldı`);
+                    value = null;
+                }
+            }
+
+            // TARİH DÖNÜŞÜMÜ (SADECE tarih alanı olan modüller için)
             if (field === 'tarih' && window.luxon?.DateTime) {
                 try {
                     if (typeof value === 'number' && value > 30000) {
@@ -137,8 +159,16 @@ function transformRows(rows, fieldMap, moduleName) {
                 }
             }
 
-            // Sayısal alanlar
-            if (['tutar', 'bakiye', 'birim_fiyat', 'stok_miktari'].includes(field)) {
+            // SAYISAL ALANLAR - MODÜL BAZLI
+            const numericFields = {
+                'faturalar': ['tutar'],
+                'stok': ['stok_miktari', 'birim_fiyat'],
+                'cari': ['bakiye'],
+                'hesap_plani': ['Borç', 'Alacak', 'Borç Bakiye', 'Alacak Bakiye', 
+                               'Döviz Borç', 'Döviz Alacak', 'Döviz Borç Bakiye', 'Döviz Alacak Bakiye']
+            };
+
+            if (numericFields[moduleName]?.includes(field)) {
                 if (typeof value === 'string') value = value.replace(',', '.');
                 value = parseFloat(value);
                 if (isNaN(value)) value = null;
@@ -153,7 +183,6 @@ function transformRows(rows, fieldMap, moduleName) {
             console.warn(`Satır ${rowIndex+2} tamamen boş, atlandı.`);
         }
     });
-    console.log('Dönüştürülen kayıt sayısı:', records.length);
     return records;
 }
 
