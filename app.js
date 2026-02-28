@@ -1,4 +1,4 @@
-// app.js
+// app
 // Ana uygulama: tablo oluşturma, buton yönetimi, global fonksiyonlar
 (function() {
     'use strict';
