@@ -178,15 +178,29 @@
             }
         }
         
-        // Sayısal alanları parse et - BOŞ DEĞERLERİ NULL YAP
-        const numericFields = ['Borç', 'Alacak', 'Borç Bakiye', 'Alacak Bakiye', 
-                              'Döviz Borç', 'Döviz Alacak', 'Döviz Borç Bakiye', 'Döviz Alacak Bakiye'];
+        // Sayısal alanları parse et - MODÜL BAZLI
+        const module = currentModule; // currentModule, showModal'da set ediliyor
+        
+        const numericFieldsMap = {
+            'faturalar':   ['tutar'],
+            'stok':        ['stok_miktari', 'birim_fiyat'],
+            'cari':        ['bakiye'],
+            'hesap_plani': ['Borç', 'Alacak', 'Borç Bakiye', 'Alacak Bakiye', 
+                            'Döviz Borç', 'Döviz Alacak', 'Döviz Borç Bakiye', 'Döviz Alacak Bakiye']
+        };
+        
+        const numericFields = numericFieldsMap[module] || [];
         
         numericFields.forEach(field => {
             if (formData[field] === undefined || formData[field] === null || formData[field] === '') {
                 formData[field] = null;  // Boş değerleri null yap
             } else {
-                const parsed = parseFloat(formData[field].toString().replace(',', '.'));
+                // String ise virgülü noktaya çevir
+                let val = formData[field];
+                if (typeof val === 'string') {
+                    val = val.replace(',', '.');
+                }
+                const parsed = parseFloat(val);
                 formData[field] = isNaN(parsed) ? null : parsed;
             }
         });
@@ -325,3 +339,4 @@
         init();
     }
 })();
+
